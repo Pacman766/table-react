@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import './App.css';
 import util from './util.json';
+import { nanoid } from 'nanoid';
+import ReadOnlyRow from './components/ReadOnlyRow';
+import EditableRow from './components/EditableRow';
 
 function App() {
   const [persons, setPersons] = useState(util);
@@ -10,43 +13,59 @@ function App() {
     phoneNumber: '',
     email: '',
   });
+  const [editPersonId, setEditPersonId] = useState(null);
 
   const handleAddFormData = (e) => {
     e.preventDefault();
 
-    const fieldName = e.target.getAttribute('name');
-    const fieldValue = e.target.value;
+    const inputName = e.target.getAttribute('name');
+    const inputValue = e.target.value;
 
     const newFormData = { ...addFormData };
-    newFormData[fieldName] = fieldValue;
+
+    newFormData[inputName] = inputValue;
 
     setAddFormData(newFormData);
   };
 
+  const handleSubmitFormData = (e) => {
+    e.preventDefault();
+
+    const newContact = {
+      id: nanoid(),
+      fullName: addFormData.fullName,
+      address: addFormData.address,
+      phoneNumber: addFormData.phoneNumber,
+      email: addFormData.email,
+    };
+    const newContacts = [...persons, newContact];
+    setPersons(newContacts);
+  };
+
   return (
     <div className="app-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Adress</th>
-            <th>Phone Number</th>
-            <th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {persons.map((person) => (
-            <tr>
-              <td>{person.fullName}</td>
-              <td>{person.address}</td>
-              <td>{person.phoneNumber}</td>
-              <td>{person.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <h2>Add contact</h2>
       <form>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Adress</th>
+              <th>Phone Number</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {persons.map((person) => (
+              <Fragment>
+                <EditableRow />
+                <ReadOnlyRow person={person} />
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </form>
+      <h2>Add contact</h2>
+      <form onSubmit={handleSubmitFormData}>
         <input
           name="fullName"
           required="required"
