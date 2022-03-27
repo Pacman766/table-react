@@ -42,6 +42,11 @@ function App() {
     setPersons(newContacts);
   };
 
+  const handleEditClick = (e, contact) => {
+    e.preventDefault();
+    setEditPersonId(contact.id);
+  };
+
   return (
     <div className="app-container">
       <form>
@@ -52,13 +57,20 @@ function App() {
               <th>Adress</th>
               <th>Phone Number</th>
               <th>Email</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {persons.map((person) => (
               <Fragment>
-                <EditableRow />
-                <ReadOnlyRow person={person} />
+                {editPersonId === person.id ? (
+                  <EditableRow />
+                ) : (
+                  <ReadOnlyRow
+                    person={person}
+                    handleEditClick={handleEditClick}
+                  />
+                )}
               </Fragment>
             ))}
           </tbody>
