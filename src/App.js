@@ -14,6 +14,12 @@ function App() {
     email: '',
   });
   const [editPersonId, setEditPersonId] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    fullName: '',
+    address: '',
+    phoneNumber: '',
+    email: '',
+  });
 
   const handleAddFormData = (e) => {
     e.preventDefault();
@@ -45,11 +51,66 @@ function App() {
   const handleEditClick = (e, contact) => {
     e.preventDefault();
     setEditPersonId(contact.id);
+
+    const formValues = {
+      fullName: contact.fullName,
+      address: contact.address,
+      phoneNumber: contact.phoneNumber,
+      email: contact.email,
+    };
+
+    setEditFormData(formValues);
+  };
+
+  const handleEditFormData = (e) => {
+    e.preventDefault();
+
+    const editName = e.target.getAttribute('name');
+    const editValue = e.target.value;
+
+    const newFormData = { ...editFormData };
+    newFormData[editName] = editValue;
+
+    setEditFormData(newFormData);
+  };
+
+  const handleEditFormSubmit = (e) => {
+    e.preventDefault();
+
+    const editedFormData = {
+      id: editPersonId,
+      fullName: editFormData.fullName,
+      address: editFormData.address,
+      phoneNumber: editFormData.phoneNumber,
+      email: editFormData.email,
+    };
+
+    const newPersons = [...persons];
+
+    const index = persons.findIndex((person) => person.id === editPersonId);
+
+    newPersons[index] = editedFormData;
+    setPersons(newPersons);
+    setEditPersonId(null);
+  };
+
+  const handleCancelClick = () => {
+    setEditPersonId(null);
+  };
+
+  const handleDeleteClick = (personId) => {
+    const newPersons = [...persons];
+
+    const index = persons.findIndex((person) => person.id === personId);
+
+    newPersons.splice(index, 1);
+
+    setPersons(newPersons);
   };
 
   return (
     <div className="app-container">
-      <form>
+      <form onSubmit={handleEditFormSubmit}>
         <table>
           <thead>
             <tr>
@@ -64,11 +125,16 @@ function App() {
             {persons.map((person) => (
               <Fragment>
                 {editPersonId === person.id ? (
-                  <EditableRow />
+                  <EditableRow
+                    editFormData={editFormData}
+                    handleEditFormData={handleEditFormData}
+                    handleCancelClick={handleCancelClick}
+                  />
                 ) : (
                   <ReadOnlyRow
                     person={person}
                     handleEditClick={handleEditClick}
+                    handleDeleteClick={handleDeleteClick}
                   />
                 )}
               </Fragment>
